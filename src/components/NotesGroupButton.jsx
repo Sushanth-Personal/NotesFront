@@ -33,11 +33,18 @@ const NotesGroupButton = ({
   };
 
   useEffect(() => {
+    const notesCache = localStorage.getItem("notes");
     if (notesFetch) {
       const fetchNotes = async () => {
         try {
-          const notes = await getNotes(userId, groupId);
-          setNotes(notes);
+          if (notesCache) {
+            const notes = JSON.parse(notesCache);
+            setNotes(notes);
+          }else{
+            const notes = await getNotes(userId, groupId);
+            setNotes(notes);
+          }
+          
           // setNotes(user.groups[groupId-1].notes);
         } catch (err) {
           console.log(err);

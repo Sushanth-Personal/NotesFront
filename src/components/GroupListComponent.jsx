@@ -43,10 +43,15 @@ const GroupList = () => {
         // Fetch groups using the extracted userId
         if (!isGroupUpdated) {
           let id = localStorage.getItem("userId");
-          if (id) {
-            console.log("Fetching group Data")
+          let groupsStoredCache = JSON.parse(localStorage.getItem("groups"));
+          
+          if (id && !groupsStoredCache) {
             const groupsStored = await getGroups(id);
+          } else {
+            let groupsStored = groupsStoredCache;
+          }
             if (groupsStored) {
+              localStorage.setItem("groups", JSON.stringify(groupsStored));
               setGroups(groupsStored);
               setIsGroupUpdated(true);
               setIsAuthenticated(true);
@@ -55,9 +60,10 @@ const GroupList = () => {
             } else {
               setIsAuthenticated(false);
               setIsLoginMode(true);
+              localStorage.clear();
             }
           }
-        }
+        
       } catch (error) {
         console.error("Error:", error);
         // Handle errors (e.g., token may be invalid or expired)

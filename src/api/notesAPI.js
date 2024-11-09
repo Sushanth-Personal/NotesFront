@@ -1,8 +1,9 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 const baseURL = "https://notesback-6yp0.onrender.com";
+
 const api = axios.create({
-  baseURL: "https://notesback-6yp0.onrender.com/api",
+  baseURL: `${baseURL}/api`,
 });
 
 api.interceptors.request.use(
