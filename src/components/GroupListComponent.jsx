@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import NotesGroupButton from "./NotesGroupButton";
 import styles from "./styles/GroupListComponent.module.css";
 import { useUserContext } from "../Contexts/UserContext";
@@ -15,18 +15,17 @@ const GroupList = () => {
     userId,
   } = useUserContext();
 
+  const [isGroupUpdated, setIsGroupUpdated] = useState(false);
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        console.log("groups", groups);
         // Retrieve accessToken from localStorage
         const accessToken = localStorage.getItem("accessToken");
         const refreshToken = localStorage.getItem("refreshToken");
         let id = localStorage.getItem("userId");
-        if (id) {
-          if (id !== userId) {
-            setUserId(id);
-          }
-        }
+
         if (!id && (accessToken || refreshToken)) {
           // Decode the access token to get userId
           let decodedToken = "";
@@ -41,24 +40,22 @@ const GroupList = () => {
           localStorage.setItem("userId", id);
         }
 
-        id = localStorage.getItem("userId", id);
-        if (id !== userId) {
-          setUserId(id);
-        }
         // Fetch groups using the extracted userId
-
-        const groupsStored = await getGroups(id);
-        if (!groupsStored) {
-          setIsAuthenticated(false);
-          setIsLoginMode(true);
-        } else {
-          if (
-            JSON.stringify(groupsStored) !== JSON.stringify(groups)
-          ) {
-            console.log("im here");
-            setGroups(groupsStored);
-            setIsAuthenticated(true);
-            setIsLoginMode(false);
+        if (!isGroupUpdated) {
+          let id = localStorage.getItem("userId");
+          if (id) {
+            console.log("Fetching group Data")
+            const groupsStored = await getGroups(id);
+            if (groupsStored) {
+              setGroups(groupsStored);
+              setIsGroupUpdated(true);
+              setIsAuthenticated(true);
+              setIsLoginMode(false);
+              setUserId(id);
+            } else {
+              setIsAuthenticated(false);
+              setIsLoginMode(true);
+            }
           }
         }
       } catch (error) {
@@ -68,42 +65,39 @@ const GroupList = () => {
         setIsLoginMode(true);
       }
     };
-    setInterval(fetchUserData, 600000); // 600000 ms = 10 minutes
-    
-  }, [isAuthenticated, userId, groups]);
+    fetchUserData();
+  }, [userId, groups]);
 
   const createNewGroupButton = () => {
     setShowAddNotes(true);
   };
 
   return (
-   
-      <div className={styles.container} id="group-list-container">
-        <div className={`col-lg-4 col-md-5 col-xl-3 ${styles.title}`}> 
-          <h1 className = {styles.heading}>Pocket Notes</h1>         
-        </div>
-        {groups && (
-          <div className={styles.notesFetchContainer}>
-            {groups.map((group) => (
-              <NotesGroupButton
-                key={group.groupId}
-                groupId={group.groupId}
-                groupName={group.groupName}
-                groupColor={group.groupColor}
-                shortForm={getShortForm(group.groupName)}
-              />
-            ))}
-          </div>
-        )}
-         <button
-            className={ styles.addNotesGroup}
-            style={{ width: "50px", height: "50px" }}
-            onClick={createNewGroupButton}
-          >
-            +
-          </button>
+    <div className={styles.container} id="group-list-container">
+      <div className={`col-lg-4 col-md-5 col-xl-3 ${styles.title}`}>
+        <h1 className={styles.heading}>Pocket Notes</h1>
       </div>
-
+      {groups && (
+        <div className={styles.notesFetchContainer}>
+          {groups.map((group) => (
+            <NotesGroupButton
+              key={group.groupId}
+              groupId={group.groupId}
+              groupName={group.groupName}
+              groupColor={group.groupColor}
+              shortForm={getShortForm(group.groupName)}
+            />
+          ))}
+        </div>
+      )}
+      <button
+        className={styles.addNotesGroup}
+        style={{ width: "50px", height: "50px" }}
+        onClick={createNewGroupButton}
+      >
+        +
+      </button>
+    </div>
   );
 };
 
