@@ -68,8 +68,8 @@ const GroupList = () => {
         setIsLoginMode(true);
       }
     };
-
-    fetchUserData();
+    setInterval(fetchUserData, 600000); // 600000 ms = 10 minutes
+    
   }, [isAuthenticated, userId, groups]);
 
   const createNewGroupButton = () => {
