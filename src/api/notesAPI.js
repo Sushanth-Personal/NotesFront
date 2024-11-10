@@ -236,7 +236,7 @@ export const createNotesGroup = async (
   }
 };
 
-export const getNotes = async (userId, groupId) => {
+export const getNotes = async (userId) => {
   try {
     const response = await api.get(`/notes/${userId}`);
     console.log(response.data);
