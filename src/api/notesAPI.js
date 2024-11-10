@@ -239,7 +239,8 @@ export const createNotesGroup = async (
 export const getNotes = async (userId, groupId) => {
   try {
     const response = await api.get(`/notes/${userId}`);
-    return response.data;
+    console.log(response.data);
+    return response.data.groups;
   } catch (error) {
     console.error("Error getting notes:", error);
     return null;

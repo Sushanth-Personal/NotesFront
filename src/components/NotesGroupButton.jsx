@@ -40,11 +40,11 @@ const NotesGroupButton = ({
             if (notes) {
                 // Parse and set notes if found in sessionStorage
                 notes = JSON.parse(notes);
-                setNotes(notes);
+                setNotes(notes[groupId-1]);
             } else {
                 // Fetch notes if not in sessionStorage
                 const fetchedNotes = await getNotes(userId);
-                setNotes(fetchedNotes);
+                setNotes(fetchedNotes[groupId-1]);
                 
                 // Store fetched notes in sessionStorage
                 sessionStorage.setItem("notes", JSON.stringify(fetchedNotes));
