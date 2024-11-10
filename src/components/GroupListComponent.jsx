@@ -16,7 +16,7 @@ const GroupList = () => {
   } = useUserContext();
 
   const [isGroupUpdated, setIsGroupUpdated] = useState(false);
-  
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -43,27 +43,30 @@ const GroupList = () => {
         // Fetch groups using the extracted userId
         if (!isGroupUpdated) {
           let id = localStorage.getItem("userId");
-          let groupsStoredCache = JSON.parse(localStorage.getItem("groups"));
-          
-          if (id && !groupsStoredCache) {
-            const groupsStored = await getGroups(id);
+          let groupsStored = JSON.parse(
+            localStorage.getItem("groups")
+          );
+
+          if (id && !groupsStored) {
+            groupsStored = await getGroups(id);
+          }
+
+          if (groupsStored) {
+            localStorage.setItem(
+              "groups",
+              JSON.stringify(groupsStored)
+            );
+            setGroups(groupsStored);
+            setIsGroupUpdated(true);
+            setIsAuthenticated(true);
+            setIsLoginMode(false);
+            setUserId(id);
           } else {
-            let groupsStored = groupsStoredCache;
+            setIsAuthenticated(false);
+            setIsLoginMode(true);
+            localStorage.clear();
           }
-            if (groupsStored) {
-              localStorage.setItem("groups", JSON.stringify(groupsStored));
-              setGroups(groupsStored);
-              setIsGroupUpdated(true);
-              setIsAuthenticated(true);
-              setIsLoginMode(false);
-              setUserId(id);
-            } else {
-              setIsAuthenticated(false);
-              setIsLoginMode(true);
-              localStorage.clear();
-            }
-          }
-        
+        }
       } catch (error) {
         console.error("Error:", error);
         // Handle errors (e.g., token may be invalid or expired)
@@ -79,33 +82,31 @@ const GroupList = () => {
   };
 
   return (
-   
-      <div className={styles.container} id="group-list-container">
-        <div className={`col-lg-4 col-md-5 col-xl-3 ${styles.title}`}> 
-          <h1 className = {styles.heading}>Pocket Notes</h1>         
-        </div>
-        {groups && (
-          <div className={styles.notesFetchContainer}>
-            {groups.map((group) => (
-              <NotesGroupButton
-                key={group.groupId}
-                groupId={group.groupId}
-                groupName={group.groupName}
-                groupColor={group.groupColor}
-                shortForm={getShortForm(group.groupName)}
-              />
-            ))}
-          </div>
-        )}
-         <button
-            className={ styles.addNotesGroup}
-            style={{ width: "50px", height: "50px" }}
-            onClick={createNewGroupButton}
-          >
-            +
-          </button>
+    <div className={styles.container} id="group-list-container">
+      <div className={`col-lg-4 col-md-5 col-xl-3 ${styles.title}`}>
+        <h1 className={styles.heading}>Pocket Notes</h1>
       </div>
-
+      {groups && (
+        <div className={styles.notesFetchContainer}>
+          {groups.map((group) => (
+            <NotesGroupButton
+              key={group.groupId}
+              groupId={group.groupId}
+              groupName={group.groupName}
+              groupColor={group.groupColor}
+              shortForm={getShortForm(group.groupName)}
+            />
+          ))}
+        </div>
+      )}
+      <button
+        className={styles.addNotesGroup}
+        style={{ width: "50px", height: "50px" }}
+        onClick={createNewGroupButton}
+      >
+        +
+      </button>
+    </div>
   );
 };
 
