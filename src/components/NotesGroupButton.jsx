@@ -33,29 +33,35 @@ const NotesGroupButton = ({
   };
 
   useEffect(() => {
-    const notesCache = localStorage.getItem("notes");
-    if (notesFetch) {
-      const fetchNotes = async () => {
+    // Retrieve notes from sessionStorage
+    let notes = sessionStorage.getItem("notes");
+    const fetchNotes = async () => {
         try {
-          if (notesCache) {
-            const notes = JSON.parse(notesCache);
-            setNotes(notes);
-          }else{
-            const notes = await getNotes(userId, groupId);
-            setNotes(notes);
-          }
-          
-          // setNotes(user.groups[groupId-1].notes);
+            if (notes) {
+                // Parse and set notes if found in sessionStorage
+                notes = JSON.parse(notes);
+                setNotes(notes);
+            } else {
+                // Fetch notes if not in sessionStorage
+                const fetchedNotes = await getNotes(userId);
+                setNotes(fetchedNotes);
+                
+                // Store fetched notes in sessionStorage
+                sessionStorage.setItem("notes", JSON.stringify(fetchedNotes));
+            }
+            
+            // Set other UI states
+            setSelectedGroup(groupName);
+            setSelectedColor(groupColor);
+            setNotesFetch(false);
         } catch (err) {
-          console.log(err);
+            console.error("Error fetching notes:", err);
         }
-      };
-      fetchNotes();
-      setSelectedGroup(groupName);
-      setSelectedColor(groupColor);
-      setNotesFetch(false);
-    }
-  }, [notesFetch]);
+    };
+    
+    fetchNotes();
+}, [notesFetch]); // Trigger useEffect when notesFetch changes
+
 
   const handleKeyDown = (event) => {
     if (event.key === "Delete") {
