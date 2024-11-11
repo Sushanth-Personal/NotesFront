@@ -20,13 +20,11 @@ const RegisterUser = () => {
 
     try {
       const response = await registerUser(userName, password, email);
-      console.log(response);
       if (response === "Success") {
         setIsRegisterMode(false);
         setIsLoginMode(true);
       }
       if (response === "Username already exists") {
-        console.log(typeof response);
         setError("Username already exists");
       }
       if (response === "Email already exists") {

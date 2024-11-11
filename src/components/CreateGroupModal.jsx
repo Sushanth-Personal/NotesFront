@@ -41,7 +41,7 @@ const CreateGroupModal = () => {
       setErrorMessage("Please fill in all fields.");
       return;
     }
-    console.log("groups type", typeof groups);
+
     if (
       groups.some(
         (group) =>
@@ -70,7 +70,10 @@ const CreateGroupModal = () => {
       );
       setGroups([...groups, newGroup]);
       const newGroups = [...groups, newGroup];
+      sessionStorage.clear();
+      localStorage.setItem("groups","");
       setNotes([]);
+      setGroups(newGroups);
       setShowAddNotes(false);
       setGroupId(userData.groups.length);
       setSelectedGroup(

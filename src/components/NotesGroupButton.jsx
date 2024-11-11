@@ -17,10 +17,11 @@ const NotesGroupButton = ({
     setSelectedColor,
     setNotes,
     setGroupId,
-    setGroups
+    setGroups,
+    setIsGroupUpdated
   } = useNotesContext();
 
-  const { userId} = useUserContext();
+  const { userId } = useUserContext();
   const [notesFetch, setNotesFetch] = useState(false);
 
   /**
@@ -34,34 +35,35 @@ const NotesGroupButton = ({
 
   useEffect(() => {
     // Retrieve notes from sessionStorage
-    let notes = sessionStorage.getItem("notes");
-    const fetchNotes = async () => {
+    if (notesFetch) {
+      let notes = sessionStorage.getItem("notes");
+      const fetchNotes = async () => {
         try {
-            if (notes) {
-                // Parse and set notes if found in sessionStorage
-                notes = JSON.parse(notes);
-                setNotes(notes[groupId-1]);
-            } else {
-                // Fetch notes if not in sessionStorage
-                const fetchedNotes = await getNotes(userId);
-                setNotes(fetchedNotes[groupId-1]);
-                
-                // Store fetched notes in sessionStorage
-                sessionStorage.setItem("notes", JSON.stringify(fetchedNotes));
-            }
-            
-            // Set other UI states
-            setSelectedGroup(groupName);
-            setSelectedColor(groupColor);
-            setNotesFetch(false);
-        } catch (err) {
-            console.error("Error fetching notes:", err);
-        }
-    };
-    
-    fetchNotes();
-}, [notesFetch]); // Trigger useEffect when notesFetch changes
+          if (notes) {
+            // Parse and set notes if found in sessionStorage
+            notes = JSON.parse(notes);
+            setNotes(notes[groupId-1]);
+          } else {
+            // Fetch notes if not in sessionStorage
+            const fetchedNotes = await getNotes(userId,groupId);
+            setNotes(fetchedNotes);
 
+            // Store fetched notes in sessionStorage
+     
+          }
+
+          // Set other UI states
+          setSelectedGroup(groupName);
+          setSelectedColor(groupColor);
+          setNotesFetch(false);
+        } catch (err) {
+          console.error("Error fetching notes:", err);
+        }
+      };
+
+      fetchNotes();
+    }
+  }, [notesFetch]); // Trigger useEffect when notesFetch changes
 
   const handleKeyDown = (event) => {
     if (event.key === "Delete") {
@@ -70,6 +72,7 @@ const NotesGroupButton = ({
           const response = await deleteNotes(groupId);
           if (response.status === 200) {
             setSelectedGroup(null);
+            setIsGroupUpdated(true);
             setGroups([]);
           }
         } catch (err) {

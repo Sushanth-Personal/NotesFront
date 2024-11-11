@@ -5,8 +5,15 @@ import { useUserContext } from "../Contexts/UserContext";
 import { useNotesContext } from "../Contexts/NotesContext";
 import { getGroups } from "../api/notesAPI";
 import { jwtDecode } from "jwt-decode";
+import authCheck from "./Logic/authCheck";
 const GroupList = () => {
-  const { groups, setGroups, setShowAddNotes } = useNotesContext();
+  const {
+    groups,
+    setGroups,
+    setShowAddNotes,
+    isGroupUpdated,
+    setIsGroupUpdated,
+  } = useNotesContext();
   const {
     setIsAuthenticated,
     setIsLoginMode,
@@ -15,67 +22,51 @@ const GroupList = () => {
     userId,
   } = useUserContext();
 
-  const [isGroupUpdated, setIsGroupUpdated] = useState(false);
-
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        console.log("groups", groups);
-        // Retrieve accessToken from localStorage
-        const accessToken = localStorage.getItem("accessToken");
-        const refreshToken = localStorage.getItem("refreshToken");
-        let id = localStorage.getItem("userId");
-
-        if (!id && (accessToken || refreshToken)) {
-          // Decode the access token to get userId
-          let decodedToken = "";
-          if (accessToken) {
-            decodedToken = jwtDecode(accessToken);
-          } else {
-            decodedToken = jwtDecode(refreshToken);
-          }
-
-          const id = decodedToken.id; // Adjust this if your userId is stored under a different key
-
-          localStorage.setItem("userId", id);
+        const response = await authCheck();
+        if (!response) {
+          setIsAuthenticated(false);
+          setIsLoginMode(true);
+          return;
+        }
+        let userId = localStorage.getItem("userId");
+        let groupsStored = localStorage.getItem("groups");
+        // Fetch groups if not stored locally
+        if (!groupsStored) {
+          groupsStored = await getGroups(userId);
+          localStorage.setItem(
+            "groups",
+            JSON.stringify(groupsStored)
+          ); // Cache fetched groups
+        } else {
+          groupsStored = JSON.parse(groupsStored); // Parse if groups are retrieved from localStorage
         }
 
-        // Fetch groups using the extracted userId
-        if (!isGroupUpdated) {
-          let id = localStorage.getItem("userId");
-          let groupsStored = JSON.parse(
-            localStorage.getItem("groups")
-          );
-
-          if (id && !groupsStored) {
-            groupsStored = await getGroups(id);
-          }
-
-          if (groupsStored) {
-            localStorage.setItem(
-              "groups",
-              JSON.stringify(groupsStored)
-            );
-            setGroups(groupsStored);
-            setIsGroupUpdated(true);
-            setIsAuthenticated(true);
-            setIsLoginMode(false);
-            setUserId(id);
-          } else {
-            setIsAuthenticated(false);
-            setIsLoginMode(true);
-            localStorage.clear();
-          }
+        // Update state if groups are available
+        if (groupsStored) {
+          setGroups(groupsStored);
+          setIsGroupUpdated(false);
+          setIsAuthenticated(true);
+          setIsLoginMode(false);
+          setUserId(userId);
+        } else {
+          // Handle empty groups scenario
+          setIsAuthenticated(false);
+          setIsLoginMode(true);
+          localStorage.clear();
         }
       } catch (error) {
         console.error("Error:", error);
-        // Handle errors (e.g., token may be invalid or expired)
+        setIsGroupUpdated(true);
         setIsAuthenticated(false);
         setIsLoginMode(true);
       }
     };
+
     fetchUserData();
-  }, [userId, groups]);
+  }, [isGroupUpdated, isAuthenticated]); // Adjust dependencies as needed
 
   const createNewGroupButton = () => {
     setShowAddNotes(true);

@@ -5,41 +5,33 @@ import GreyButton from "../assets/GreyButton.png";
 import BlueButton from "../assets/BlueButton.png";
 import {useUserContext} from "../Contexts/UserContext";
 import {useNotesContext} from "../Contexts/NotesContext";
-import { addNotes } from "../api/notesAPI";
+import addNote from "./Logic/addNote";
 const TextInputComponent = () => {
   const [description, setDescription] = useState("");
   const { groupId, notes, setNotes } = useNotesContext();
-  const {userId} = useUserContext();
+
 
   const handleClick = () => {
     if (description.trim() !== "") {
-      addCurrentNote();
+
+      const existingNotes = notes;
+      const newNote = {
+        id: existingNotes.length,
+        date: formatDateAndTime(Date.now(), "date"),
+        time: formatDateAndTime(Date.now(), "time"),
+        text: description,
+      };
+  
+
+      
+      addNote(newNote,groupId).then((updatedAllNotes) => {
+        setNotes(updatedAllNotes);
+      })
       setDescription(""); // Clear the input field after adding the note
     }
   };
 
-  const addCurrentNote = () => {
-    const existingNotes = notes;
-    const newNote = {
-      id: existingNotes.length + 1,
-      date: formatDateAndTime(Date.now(), "date"),
-      time: formatDateAndTime(Date.now(), "time"),
-      text: description,
-    };
-
-    const updatedNotes = [...existingNotes, newNote];
-    setNotes(updatedNotes);
-
-    const updatingNotes = async () => {
-      try {
-        await addNotes(userId, groupId, updatedNotes);
-      } catch (error) {
-        console.error("Error adding notes:", error);
-      }
-    };
-    updatingNotes();
-  };
-
+  
   const handleChange = (e) => {
     setDescription(e.target.value);
   };

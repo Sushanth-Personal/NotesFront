@@ -8,8 +8,12 @@ import { useUserContext } from "../Contexts/UserContext";
 import { useMediaQuery } from "react-responsive";
 
 const ChatBox = () => {
-  const { selectedGroup, setSelectedGroup, selectedColor, notes } =
-    useNotesContext();
+  const {
+    selectedGroup,
+    setSelectedGroup,
+    selectedColor,
+    notes,
+  } = useNotesContext();
 
   const { setIsAuthenticated, setIsLoginMode } = useUserContext();
 
@@ -61,7 +65,9 @@ const ChatBox = () => {
           )}
 
           {selectedGroup && isMobile && (
-            <header className = {`d-flex align-items-center justify-content-between p-3`}>
+            <header
+              className={`d-flex align-items-center justify-content-between p-3`}
+            >
               <div
                 className={styles.backButtonContainer}
                 tabIndex="0"
@@ -79,7 +85,11 @@ const ChatBox = () => {
               >
                 {getShortForm(selectedGroup)}
               </div>
-              <p className={`flex-grow-1 m-0 ms-3 ${styles.groupName}`}>{selectedGroup}</p>
+              <p
+                className={`flex-grow-1 m-0 ms-3 ${styles.groupName}`}
+              >
+                {selectedGroup}
+              </p>
               <button
                 className="btn btn-primary me-3"
                 onClick={handleSignOut}
@@ -121,7 +131,7 @@ const ChatBox = () => {
           {selectedGroup && (
             <>
               <div className={styles.notesDisplay}>
-                {notes.map((note) => (
+                {notes && notes.map((note) => (
                   <div key={note.id}>
                     <NotesWidget
                       id={note.id}
