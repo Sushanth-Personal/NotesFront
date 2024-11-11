@@ -1,8 +1,8 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import authCheck from "../components/Logic/authCheck";
-// const baseURL = "https://notesback-6yp0.onrender.com";
-const baseURL = "http://localhost:5000";
+const baseURL = "https://notesback-6yp0.onrender.com";
+// const baseURL = "http://localhost:5000";
 
 const api = axios.create({
   baseURL: `${baseURL}/api`,
