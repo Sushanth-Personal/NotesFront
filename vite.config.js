@@ -1,14 +1,19 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: process.env.PORT || 4173, // Bind to the Render-provided port, fallback to 4173
-    host: true, // Expose the app to external IPs
+    port: 4173, // Use a fixed port for local development
+    host: true, // Allow external IP access
+    open: true, // Automatically open the app in the browser during development
   },
   build: {
     outDir: 'dist', // Ensure that build output goes into the 'dist' folder
+  },
+  preview: {
+    host: '0.0.0.0', // Bind to all interfaces for external access
+    port: 4173, // Port for the preview server
+    allowedHosts: ['https://notesfront-6stp.onrender.com/'], // Corrected hostname
   },
 });
