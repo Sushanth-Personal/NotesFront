@@ -1,7 +1,7 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import authCheck from "../components/Logic/authCheck";
-const baseURL = "https://notesback-6yp0.onrender.com";
+const baseURL = "https://notesback-4x2j.onrender.com";
 // const baseURL = "http://localhost:5000";
 
 
