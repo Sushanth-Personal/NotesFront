@@ -14,6 +14,6 @@ export default defineConfig({
   preview: {
     host: '0.0.0.0', // Bind to all interfaces for external access
     port: 4173, // Port for the preview server
-    allowedHosts: ['https://notesfront-6stp.onrender.com/'], // Corrected hostname
+    allowedHosts: ['notesfront-6stp.onrender.com'], // Corrected hostname
   },
 });
